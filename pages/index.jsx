@@ -4,9 +4,17 @@ import { Sparkles, X, Trophy, Settings, Link as LinkIcon, ExternalLink, Lock, Us
 export default function App() {
   const canvasRef = useRef(null);
 
-  // Customizable Survey Link & Reward Image
+  // Survey Link stored in localStorage for persistence across reloads
   const [surveyUrl, setSurveyUrl] = useState('https://forms.google.com');
   const [rewardImageUrl] = useState('/imagenes/recompensa.png');
+
+  // Load saved survey link from localStorage on initial render
+  useEffect(() => {
+    const savedUrl = localStorage.getItem('custom_survey_url');
+    if (savedUrl) {
+      setSurveyUrl(savedUrl);
+    }
+  }, []);
 
   // Security & Modals state
   const [showConfigButton, setShowConfigButton] = useState(false);
@@ -51,7 +59,6 @@ export default function App() {
     const darkraiImg = new window.Image();
     darkraiImg.src = '/imagenes/darkrai.png';
 
-    // Audio effects setup with correct filenames
     const darkraiSound = new Audio('/sonidos/darkrai.mp3');
     const manzanaSound = new Audio('/sonidos/manzana.mp3');
 
@@ -244,7 +251,6 @@ export default function App() {
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < 45) {
-          // Reproducir sonido específico según el elemento
           if (entity.type === 'darkrai') {
             darkraiSound.currentTime = 0;
             darkraiSound.play().catch(() => {});
@@ -329,6 +335,11 @@ export default function App() {
     } else {
       setLoginError(true);
     }
+  };
+
+  const handleSaveSurveyUrl = () => {
+    localStorage.setItem('custom_survey_url', surveyUrl);
+    setIsConfigOpen(false);
   };
 
   return (
@@ -417,7 +428,7 @@ export default function App() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="chozo"
+                  placeholder="Ingresa tu usuario"
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-yellow-500/50"
                   required
                 />
@@ -431,7 +442,7 @@ export default function App() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="shonen semanal"
+                  placeholder="••••••••"
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-yellow-500/50"
                   required
                 />
@@ -492,7 +503,7 @@ export default function App() {
               <div className="pt-2">
                 <button
                   type="button"
-                  onClick={() => setIsConfigOpen(false)}
+                  onClick={handleSaveSurveyUrl}
                   className="w-full py-3 rounded-xl font-bold text-slate-950 bg-yellow-400 hover:bg-yellow-300 transition-all cursor-pointer"
                 >
                   Guardar Cambios
