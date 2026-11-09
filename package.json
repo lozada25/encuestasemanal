@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@vercel/global-config": "^1.5.1",
     "autoprefixer": "^10.6.2",
     "lucide-react": "^1.70.0",
     "next": "^16.4.5",
