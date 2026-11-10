@@ -9,11 +9,15 @@ export default function App() {
   const [rewardImageUrl] = useState('/imagenes/recompensa.png');
 
   // Cargar el enlace global desde la API de Vercel Global Config al iniciar
+// Cargar el enlace global desde la API de Vercel Global Config al iniciar
+// Cargar el enlace global solo si la nube tiene un link válido personalizado
   useEffect(() => {
     fetch('/api/survey')
       .then((res) => res.json())
       .then((data) => {
-        if (data.url) setSurveyUrl(data.url);
+        if (data.url && data.url !== 'https://forms.google.com') {
+          setSurveyUrl(data.url);
+        }
       })
       .catch(() => {});
   }, []);
