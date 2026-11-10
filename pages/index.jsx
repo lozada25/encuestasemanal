@@ -5,7 +5,7 @@ import { Sparkles, X, Trophy, Settings, Link as LinkIcon, ExternalLink, Lock, Us
 export default function App() {
   const canvasRef = useRef(null);
 
-  const [surveyUrl, setSurveyUrl] = useState('https://forms.google.com');
+  const [surveyUrl, setSurveyUrl] = useState('https://docs.google.com/forms/d/e/1FAIpQLSetAldHVam5HEdDYMMFi_f-88e8E2fUoOdRQIOLQFMMCUytPQ/viewform?usp=header');
   const [rewardImageUrl] = useState('/imagenes/recompensa.png');
 
   // Cargar el enlace global desde la API de Vercel Global Config al iniciar
