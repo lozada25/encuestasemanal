@@ -5,22 +5,9 @@ import { Sparkles, X, Trophy, Settings, Link as LinkIcon, ExternalLink, Lock, Us
 export default function App() {
   const canvasRef = useRef(null);
 
+  // Enlace fijo y directo de tu formulario real para ti y para todos los dispositivos
   const [surveyUrl, setSurveyUrl] = useState('https://docs.google.com/forms/d/e/1FAIpQLSetAldHVam5HEdDYMMFi_f-88e8E2fUoOdRQIOLQFMMCUytPQ/viewform?usp=header');
   const [rewardImageUrl] = useState('/imagenes/recompensa.png');
-
-  // Cargar el enlace global desde la API de Vercel Global Config al iniciar
-// Cargar el enlace global desde la API de Vercel Global Config al iniciar
-// Cargar el enlace global solo si la nube tiene un link válido personalizado
-  useEffect(() => {
-    fetch('/api/survey')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.url && data.url !== 'https://forms.google.com') {
-          setSurveyUrl(data.url);
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   const [showConfigButton, setShowConfigButton] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -337,23 +324,9 @@ export default function App() {
     }
   };
 
-  // Guardar el link en la nube de Vercel para que se actualice globalmente
-  const handleSaveSurveyUrl = async () => {
-    try {
-      const res = await fetch('/api/survey', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: surveyUrl }),
-      });
-      if (res.ok) {
-        setIsConfigOpen(false);
-        alert('¡Enlace actualizado en la nube para todos los dispositivos!');
-      } else {
-        alert('Error al guardar en el servidor');
-      }
-    } catch {
-      alert('Error de conexión con la nube');
-    }
+  const handleSaveSurveyUrl = () => {
+    setIsConfigOpen(false);
+    alert('¡Enlace guardado correctamente!');
   };
 
   return (
@@ -491,8 +464,8 @@ export default function App() {
                 <Settings className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-yellow-300">Actualizar Enlace Global</h2>
-                <p className="text-xs text-slate-400">Modifica el enlace para todos los usuarios y dispositivos</p>
+                <h2 className="text-xl font-bold text-yellow-300">Actualizar Enlace</h2>
+                <p className="text-xs text-slate-400">Modifica el enlace de la encuesta</p>
               </div>
             </div>
 
@@ -517,7 +490,7 @@ export default function App() {
                   onClick={handleSaveSurveyUrl}
                   className="w-full py-3 rounded-xl font-bold text-slate-950 bg-yellow-400 hover:bg-yellow-300 transition-all cursor-pointer"
                 >
-                  Guardar en la Nube
+                  Guardar Cambios
                 </button>
               </div>
             </div>
