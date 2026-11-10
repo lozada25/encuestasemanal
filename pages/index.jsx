@@ -1,42 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Head from 'next/head';
 import { Sparkles, X, Trophy, Settings, Link as LinkIcon, ExternalLink, Lock, User, Key } from 'lucide-react';
 
 export default function App() {
   const canvasRef = useRef(null);
 
-  // Survey Link stored in localStorage for persistence across reloads
   const [surveyUrl, setSurveyUrl] = useState('https://forms.google.com');
   const [rewardImageUrl] = useState('/imagenes/recompensa.png');
 
-  // Load saved survey link from localStorage on initial render
+  // Cargar el enlace global desde la API de Vercel Global Config al iniciar
   useEffect(() => {
-    const savedUrl = localStorage.getItem('custom_survey_url');
-    if (savedUrl) {
-      setSurveyUrl(savedUrl);
-    }
+    fetch('/api/survey')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.url) setSurveyUrl(data.url);
+      })
+      .catch(() => {});
   }, []);
 
-  // Security & Modals state
   const [showConfigButton, setShowConfigButton] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   
-  // Login form state
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
 
-  // Counter state for explosions
   const [explosionCount, setExplosionCount] = useState(0);
   const [showSurpriseModal, setShowSurpriseModal] = useState(false);
 
-  // Floating Entities, Wave particles, and floating texts
   const entitiesRef = useRef([]);
   const particlesRef = useRef([]);
   const floatTextsRef = useRef([]);
   const mouseRef = useRef({ x: -1000, y: -1000, radius: 180 });
 
-  // Secret shortcut listener: Ctrl + Shift + A
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.ctrlKey && e.shiftKey && e.code === 'KeyA') {
@@ -48,7 +45,6 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Canvas wave animation and entities interaction
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -337,17 +333,34 @@ export default function App() {
     }
   };
 
-  const handleSaveSurveyUrl = () => {
-    localStorage.setItem('custom_survey_url', surveyUrl);
-    setIsConfigOpen(false);
+  // Guardar el link en la nube de Vercel para que se actualice globalmente
+  const handleSaveSurveyUrl = async () => {
+    try {
+      const res = await fetch('/api/survey', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: surveyUrl }),
+      });
+      if (res.ok) {
+        setIsConfigOpen(false);
+        alert('¡Enlace actualizado en la nube para todos los dispositivos!');
+      } else {
+        alert('Error al guardar en el servidor');
+      }
+    } catch {
+      alert('Error de conexión con la nube');
+    }
   };
 
   return (
     <div className="relative min-h-screen w-full bg-[#030508] text-white overflow-hidden flex flex-col items-center justify-between select-none font-sans p-6">
-      {/* Background Fluid Wave Canvas */}
+      <Head>
+        <title>Encuesta Semanal</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
       <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-auto cursor-pointer" />
 
-      {/* HIDDEN CONFIGURATION BUTTON (Revealed only with Ctrl + Shift + A) */}
       {showConfigButton && (
         <div className="absolute top-4 right-4 z-20 animate-fadeIn">
           <button
@@ -361,10 +374,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Decorative Glow Elements */}
       <div className="absolute w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[160px] pointer-events-none -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"></div>
 
-      {/* Header Info */}
       <div className="relative z-10 text-center mt-6">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-xs text-slate-400 backdrop-blur-md mb-2">
           <Sparkles className="w-3.5 h-3.5 text-yellow-400 animate-pulse" />
@@ -372,7 +383,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* CENTERED YELLOW BUTTON (DIRECT LINK) */}
       <div className="relative z-10 flex flex-col items-center my-auto">
         <button
           type="button"
@@ -388,7 +398,6 @@ export default function App() {
         </p>
       </div>
 
-      {/* BOTTOM EXPLOSION COUNTER */}
       <div className="relative z-10 mb-4 flex items-center justify-center">
         <div className="flex items-center gap-3 bg-slate-900/90 border border-yellow-500/30 px-6 py-2.5 rounded-2xl shadow-[0_0_20px_rgba(250,204,21,0.15)] backdrop-blur-md">
           <Trophy className="w-5 h-5 text-yellow-400" />
@@ -397,7 +406,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* LOGIN MODAL (USER & PASSWORD) */}
       {isLoginOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
           <div className="relative w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl text-white">
@@ -463,7 +471,6 @@ export default function App() {
         </div>
       )}
 
-      {/* UPDATE LINK MODAL */}
       {isConfigOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
           <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl text-white">
@@ -480,8 +487,8 @@ export default function App() {
                 <Settings className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-yellow-300">Actualizar Enlace</h2>
-                <p className="text-xs text-slate-400">Modifica el enlace de redirección de la encuesta</p>
+                <h2 className="text-xl font-bold text-yellow-300">Actualizar Enlace Global</h2>
+                <p className="text-xs text-slate-400">Modifica el enlace para todos los usuarios y dispositivos</p>
               </div>
             </div>
 
@@ -506,7 +513,7 @@ export default function App() {
                   onClick={handleSaveSurveyUrl}
                   className="w-full py-3 rounded-xl font-bold text-slate-950 bg-yellow-400 hover:bg-yellow-300 transition-all cursor-pointer"
                 >
-                  Guardar Cambios
+                  Guardar en la Nube
                 </button>
               </div>
             </div>
@@ -514,7 +521,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 30-POINT SURPRISE MODAL */}
       {showSurpriseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-lg animate-fadeIn">
           <div className="relative w-full max-w-lg bg-slate-900 border-2 border-pink-500/60 rounded-3xl p-6 text-center shadow-[0_0_50px_rgba(236,72,153,0.4)] backdrop-blur-2xl text-white">
